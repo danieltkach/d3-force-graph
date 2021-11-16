@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>D3 Force Graph</title>
+	<script src="d3.v5.9.7.js"></script>
+</head>
+
+<body>
+	<div id="viz"></div>
+
+	<script>
+		// Utils
+		function createLinksArray(n) {
+			let linksArray = [];
+			for (let i = 1; i <= n; i++) {
+				linksArray.push({ source: 0, target: i });
+			}
+			return linksArray;
+		}
+
+		// Constants ---
+		const forceManyBody = -1000;
+		const distance = 150;
+		const styles = {
+			switch: {
+				size: 50,
+				fill: 'black',
+				strokeColor: 'green',
+				strokeWidth: 6
+			},
+			agent: {
+				size: 25,
+				fill: 'white',
+				strokeColor: 'blue',
+				strokeWidth: 2
+			}
+		}
+		const linkStyles = {
+			onlineColor: 'green',
+			offlineColor: 'gray',
+			strokeWidth: 2,
+		}
+
+		// Chart container dimensions
+		let svgWidth = 500, svgHeight = 500;
+
+		// Main SVG element containing all others
+		let svg = d3.select('#viz')
+			.append('svg')
+			.attr('width', svgWidth)
+			.attr('height', svgHeight)
+			.append('g');
+
+		// Data binding ---
+		d3.json('data.json').then(data => {
+			const switchNode = {
+				d3id: 0,
+				type: 'switch',
+				name: data.selectedSwitch.sdmcSwitch.instanceName
+			};
+			const agentsNodes = data.agentsState.rates.agentsRates.map((x, i) => ({ d3id: i + 1, type: 'agent', ...x }));
+			let NODES = [switchNode, ...agentsNodes];
+			let LINKS = createLinksArray(agentsNodes.length);
+
+			const simulation = d3.forceSimulation(NODES)
+				.force("charge", d3.forceManyBody().strength(forceManyBody))
+				.force("link", d3.forceLink(LINKS).id(d => d.d3id).distance(distance))
+				.force("center", d3.forceCenter(svgWidth / 2, svgHeight / 2))
+
+			const link = svg
+				.selectAll('path')
+				.data(LINKS)
+				.enter()
+				.append('path')
+				.attr('stroke', linkStyles.onlineColor)
+				.attr('stroke-width', linkStyles.strokeWidth);
+
+			let node = svg
+				.selectAll('circle')
+				.data(NODES)
+				.enter()
+				.append('circle')
+				.attr('r', d => styles[d.type].size)
+				.attr('stroke', d => styles[d.type].strokeColor)
+				.attr('stroke-width', d => styles[d.type].strokeWidth)
+				.style('fill', d => styles[d.type].fill);
+
+			simulation.on("tick", () => {
+				node
+					.attr("cx", d => d.x)
+					.attr("cy", d => d.y);
+				link
+					.attr("d", d => d3.line()([
+						[d.source.x, d.source.y],
+						[d.target.x, d.target.y]
+					])
+					)
+			})
+		});
+	</script>
+
+</body>
+
+</html>
