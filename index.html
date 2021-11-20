@@ -45,14 +45,14 @@
 		const distance = 180;
 		const styles = {
 			switch: {
-				size: 60,
+				size: 30,
 				fill: '#bbb',
 				strokeColor: 'green',
 				strokeWidth: 4,
 				icon: 'switch_icon.svg'
 			},
 			agent: {
-				size: 25,
+				size: 30,
 				fill: 'white',
 				strokeColor: '#bbb',
 				strokeWidth: 2,
@@ -80,11 +80,11 @@
 				type: 'switch',
 				name: data.selectedSwitch.sdmcSwitch.instanceName
 			};
-			const agentsNodes = data.agentsState.rates.agentsRates.map((x, i) => ({ d3id: i + 1, type: 'agent', name: x.agentName, ...x }));
+			const agentsNodes = data.agentsState.rates.agentsRates.map((x, i) => ({ d3id: i + 1, type: x.type, name: x.agentName, ...x }));
 			let NODES = [switchNode, ...agentsNodes];
 			let LINKS = createLinksArray(agentsNodes);
 
-			// Scales domain and range
+			// Scales domain and range ---
 			const linkWeightScale = d3.scaleLinear()
 				.domain([0, d3.max(LINKS.map(link => link.weight))])
 				.range([1, 10]);
@@ -112,18 +112,8 @@
 							return "none";
 					}
 				})
-			// let nodeSvg = svg
-			// 	.selectAll('circle')
-			// 	.data(NODES)
-			// 	.enter()
-			// 	.append('circle')
-			// 	.attr('r', d => styles[d.type].size)
-			// 	.attr('stroke', d => styles[d.type].strokeColor)
-			// 	.attr('stroke-width', d => styles[d.type].strokeWidth)
-			// 	.style('fill', d => styles[d.type].fill);
-
-
-			// Define the gradient
+			
+			// Define the gradient ---
 			var gradient = svg.append("svg:defs")
 				.append("svg:radialGradient")
 				.attr("id", "gradient")
@@ -141,6 +131,7 @@
 				.attr("stop-color", "#212322")
 				.attr("stop-opacity", 1);
 
+			// Nodes ---
 			const circles = svg
 				.selectAll()
 				.data(NODES)
@@ -155,7 +146,7 @@
 				.attr("fill", 'url(#gradient)')
 				.attr("stroke-width", 1);
 
-			// Images and icons
+			// Images and icons ---
 			const imageContainer = svg
 				.selectAll('g.imageContainer')
 				.data(NODES)
