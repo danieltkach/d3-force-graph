@@ -87,7 +87,7 @@
 			// Scales domain and range
 			const linkWeightScale = d3.scaleLinear()
 				.domain([0, d3.max(LINKS.map(link => link.weight))])
-				.range([1, 10]);
+				.range([3, 15]);
 
 			const linkDashedScale = d3.scaleOrdinal()
 				.domain([0])
@@ -163,8 +163,8 @@
 				.append('g');
 			const image = imageContainer
 				.append('image')
-				.attr('height', d=>styles[d.type].size)	
-				.attr('width', d=>styles[d.type].size)	
+				.attr('height', d=>styles[d.type].size)
+				.attr('width', d=>styles[d.type].size)
 				.attr('transform', d=>`translate(${-styles[d.type].size/2}, ${-styles[d.type].size/2})`)
 				.attr('href', d=>styles[d.type].icon)
 
